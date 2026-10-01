@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+frontend/node_modules/
+frontend/dist/
+backend/ecrs.db
+.env
+backend/ecrs.db-*
+*.pyc
+.DS_Store
