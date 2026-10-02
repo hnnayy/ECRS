@@ -5,7 +5,7 @@ import sqlite3
 import threading
 import time
 from contextlib import asynccontextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from collections import Counter
 
 import numpy as np
@@ -495,17 +495,19 @@ def simulate_labels(top: int = 150, noise: float = 0.08, seed: int = 7) -> dict:
         truth = _q(con, "SELECT employer_id, anomaly_type FROM ground_truth").set_index("employer_id").anomaly_type
     rng = random.Random(seed)
     reviewed = sorted((c for c in BY_ID.values() if c["rank"] is not None), key=lambda c: c["rank"])[:top]
-    now = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    # tanggal tersebar acak (30 hari terakhir) dan naik mengikuti urutan id, agar riwayat tampak seperti kerja pemeriksa sungguhan
+    end = datetime.now(timezone.utc)
+    stamps = sorted(end - timedelta(seconds=rng.randint(0, 30 * 86400)) for _ in reviewed)
     pos = 0
     with db() as con:
         con.execute("DELETE FROM decisions WHERE source = 'simulasi'")
-        for c in reviewed:
+        for c, ts in zip(reviewed, stamps):
             fraud = truth.get(c["id"]) in SIM_POSITIVE
             if rng.random() < noise:
                 fraud = not fraud
             pos += fraud
             con.execute("INSERT INTO decisions (company_id, decision, note, officer, created_at, source) VALUES (?,?,?,?,?,'simulasi')",
-                        [c["id"], "terbukti" if fraud else "tidak_terbukti", "Label simulasi (demo)", "Simulasi", now])
+                        [c["id"], "terbukti" if fraud else "tidak_terbukti", "Label simulasi (demo)", "Simulasi", ts.isoformat(timespec="seconds")])
     return {"total": len(reviewed), "terbukti": pos, "tidak_terbukti": len(reviewed) - pos}
 
 
