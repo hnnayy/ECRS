@@ -10,8 +10,8 @@ export default function Dashboard({ onSelect }: { onSelect: (id: string) => void
   useEffect(() => { api.summary().then(setSummary).catch((e: Error) => setError(e.message)); }, []);
   return (
     <>
-      <div className="page-head"><h2>Dashboard &amp; Radar Risiko</h2><p>Antrian pemeriksaan berdasarkan composite score Wave 2.</p></div>
-      {error && <div className="alert">Gagal memuat API: {error}. Pastikan backend jalan di :8000.</div>}
+      <div className="page-head"><h2>Dashboard &amp; Radar Risiko</h2><p>Daftar badan usaha yang sebaiknya diperiksa lebih dulu, diurutkan dari yang paling perlu dicek.</p></div>
+      {error && <div className="alert">Data tidak dapat dimuat. Coba muat ulang halaman; jika masih gagal, hubungi tim IT. ({error})</div>}
       {summary && <Kpis summary={summary} />}
       <Worklist onSelect={onSelect} />
     </>

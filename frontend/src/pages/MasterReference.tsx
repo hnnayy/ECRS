@@ -29,12 +29,12 @@ export default function MasterReference() {
 
   return (
     <>
-      <div className="page-head"><h2>Master Referensi UMR &amp; Sektor</h2><p>Data acuan wilayah &amp; sektor yang dipakai sistem.</p></div>
+      <div className="page-head"><h2>Master Referensi UMR &amp; Sektor</h2><p>Daftar wilayah (beserta UMR-nya) dan sektor yang dipakai sistem untuk membandingkan badan usaha. Perubahan UMR membuat skor dihitung ulang otomatis.</p></div>
       <div className="two-col">
         <section className="panel">
           <div className="toolbar"><h3>Wilayah</h3><button className="primary" style={{ marginLeft: "auto" }} onClick={() => open({ kind: "wilayah", old: null, nama: "", umr: "" })}>+ Tambah</button></div>
           <table>
-            <thead><tr><th>Wilayah</th><th>Employer</th><th>UMR (Rp)</th><th /></tr></thead>
+            <thead><tr><th>Wilayah</th><th>Jumlah badan usaha</th><th>UMR (Rp)</th><th /></tr></thead>
             <tbody>{ref?.wilayah.map((w) => (
               <tr key={w.nama}><td>{w.nama}</td><td>{w.employer}</td><td>{w.umr_rp === null ? "–" : w.umr_rp.toLocaleString("id-ID")}</td>
                 <td className="row-actions">
@@ -46,7 +46,7 @@ export default function MasterReference() {
         <section className="panel">
           <div className="toolbar"><h3>Sektor</h3><button className="primary" style={{ marginLeft: "auto" }} onClick={() => open({ kind: "sektor", old: null, nama: "", umr: "" })}>+ Tambah</button></div>
           <table>
-            <thead><tr><th>Sektor</th><th>Employer</th><th /></tr></thead>
+            <thead><tr><th>Sektor</th><th>Jumlah badan usaha</th><th /></tr></thead>
             <tbody>{ref?.sektor.map((s) => (
               <tr key={s.nama}><td>{s.nama}</td><td>{s.employer}</td>
                 <td className="row-actions">

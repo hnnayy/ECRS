@@ -117,3 +117,6 @@ main { transition:padding-right .2s ease; }
 
 /* jarak ☰ → logo (default gap 12px + 8px); ubah nilai ini untuk menggeser logo dan judul */
 .menu-toggle { margin-right:8px; }
+
+.help { display:block; font-weight:400; font-size:11px; color:var(--muted); margin-top:3px; line-height:1.3; }
+.alert.info { margin:8px 0; }

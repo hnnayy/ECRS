@@ -33,9 +33,9 @@ def short_text(m, r):
     # kalimat ringkas untuk UI (satu baris per modul)
     if m == "A":
         rs_txt = "tidak ada resign record yang cocok" if r["resign_recorded"] == 0 else f"hanya {int(r['resign_recorded'])} resign tercatat"
-        return f"Headcount turun {r['drop_pct']:.0%} ({int(r['hc_before'])}→{int(r['hc_after'])}) pada {r['worst_period']}, {rs_txt}"
+        return f"Jumlah peserta turun {r['drop_pct']:.0%} ({int(r['hc_before'])}→{int(r['hc_after'])}) pada {r['worst_period']}, {rs_txt}"
     if m == "B":
-        return f"Upah {abs(r['pct_vs_median']):.0%} di bawah median cohort {r['cohort_key']}"
+        return f"Upah {abs(r['pct_vs_median']):.0%} di bawah nilai tengah badan usaha sejenis ({r['cohort_key']})"
     return f"Setoran {r['median_gap_pct']:.0%} di bawah seharusnya selama {int(r['longest_run'])} bulan berturut-turut ({r['run_start']} s/d {r['run_end']})"
 
 METRIC_COLS = {
@@ -103,17 +103,17 @@ def explain(row, mods):
     drivers.sort(key=lambda x: x["score"], reverse=True)
     flagged = [d for d in drivers if d["flagged"]]
     if row.band == "Belum bisa dinilai" and row.coverage == 0:
-        summary = "Belum bisa dinilai: data belum cukup di semua modul."
+        summary = "Belum bisa dinilai: data belum cukup untuk ketiga jenis pemeriksaan."
     elif row.band == "Belum bisa dinilai":
-        summary = (f"Belum bisa dinilai: hanya {row.coverage} dari {len(mods)} modul punya data cukup "
-                   f"(tidak ada indikasi di modul tersebut) — pantau sampai data lengkap.")
+        summary = (f"Belum bisa dinilai: hanya {row.coverage} dari {len(mods)} jenis pemeriksaan yang datanya cukup "
+                   f"(tidak ada indikasi pada jenis tersebut) — pantau sampai data lengkap.")
     elif flagged:
-        summary = f"Prioritas {row.band.lower()} — {len(flagged)} dari {row.coverage} modul menunjukkan indikasi: " + \
+        summary = f"Prioritas {row.band.lower()} — {len(flagged)} dari {row.coverage} jenis pemeriksaan menunjukkan indikasi: " + \
                   "; ".join(d["short_text"] for d in flagged) + "."
     else:
-        summary = f"Tidak ada indikasi di {row.coverage} modul yang dinilai."
+        summary = f"Tidak ada indikasi pada {row.coverage} jenis pemeriksaan yang dinilai."
     if 0 < row.coverage < len(mods):
-        notes.append(f"Skor gabungan dihitung dari {row.coverage} dari {len(mods)} modul yang tersedia.")
+        notes.append(f"Skor gabungan dihitung dari {row.coverage} dari {len(mods)} jenis pemeriksaan yang datanya tersedia.")
     return dict(summary=summary, drivers=drivers, notes=notes)
 
 

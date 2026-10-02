@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import Modal from "../components/Modal";
+import { tanggal } from "../format";
 import type { Employer, EmployerInput, Reference } from "../types";
 
 const EMPTY: EmployerInput = { nama: "", sektor: "", wilayah: "", skala: "Kecil", status: "Aktif", tanggal_registrasi: new Date().toISOString().slice(0, 10) };
@@ -31,7 +32,7 @@ export default function MasterEmployers({ onSelect }: { onSelect: (id: string) =
     } catch (e) { setErr((e as Error).message); }
   };
   const remove = async (e: Employer) => {
-    if (!window.confirm(`Hapus ${e.employer_id}?`)) return;
+    if (!window.confirm(`Hapus ${e.employer_id}${e.nama ? " (" + e.nama + ")" : ""}? Tindakan ini tidak dapat dibatalkan.`)) return;
     try { await api.deleteEmployer(e.employer_id); await load(); } catch (x) { window.alert((x as Error).message); }
   };
   const set = (k: keyof EmployerInput) => (ev: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
@@ -39,7 +40,7 @@ export default function MasterEmployers({ onSelect }: { onSelect: (id: string) =
 
   return (
     <>
-      <div className="page-head"><h2>Master Data Badan Usaha</h2><p>Daftar badan usaha yang dipantau. Employer yang sudah diskor engine tidak bisa dihapus, hanya di-nonaktifkan.</p></div>
+      <div className="page-head"><h2>Master Data Badan Usaha</h2><p>Daftar badan usaha yang dipantau. Badan usaha yang sudah dinilai sistem tidak bisa dihapus; ubah statusnya menjadi Non-aktif lewat tombol Ubah.</p></div>
       <section className="panel">
         <div className="toolbar">
           <input placeholder="Cari ID atau nama…" value={q} onChange={(e) => setQ(e.target.value)} />
@@ -54,10 +55,10 @@ export default function MasterEmployers({ onSelect }: { onSelect: (id: string) =
                 <td className="mono">{e.scored ? <a onClick={() => onSelect(e.employer_id)}>{e.employer_id}</a> : e.employer_id}</td>
                 <td>{e.nama || <span className="muted">–</span>}</td><td>{e.sektor}</td><td>{e.wilayah}</td><td>{e.skala}</td>
                 <td><span className={`pill ${e.status === "Aktif" ? "bg-good" : "bg-muted"}`}>{e.status}</span></td>
-                <td>{e.tanggal_registrasi}</td>
+                <td>{tanggal(e.tanggal_registrasi)}</td>
                 <td className="row-actions">
                   <button onClick={() => openEdit(e)}>Ubah</button>
-                  <button className="danger" onClick={() => remove(e)} disabled={e.scored} title={e.scored ? "Sudah diskor engine — nonaktifkan saja" : ""}>Hapus</button>
+                  <button className="danger" onClick={() => remove(e)} disabled={e.scored} title={e.scored ? "Sudah dinilai sistem, jadi tidak bisa dihapus. Gunakan Ubah → Status: Non-aktif." : "Hapus badan usaha ini"}>Hapus</button>
                 </td>
               </tr>
             ))}

@@ -240,10 +240,10 @@ def module_b(panel, emp, cfg=CFG_B):
         if r.status == FLAGGED:
             umr = (" Upah juga di bawah UMR, tetapi itu sendiri bukan dasar flag (urusan Disnaker)."
                    if pd.notna(r.umr) and r.wage_median < r.umr else "")
-            return (f"Upah dilaporkan {rp(r.wage_median)}/orang, {abs(r.pct_vs_median):.0%} di bawah median perusahaan "
+            return (f"Upah dilaporkan {rp(r.wage_median)}/orang, {abs(r.pct_vs_median):.0%} di bawah nilai tengah perusahaan "
                     f"sejenis ({rp(r.cohort_median_wage)}; {cohort}), konsisten di {int(r.n_below)}/{int(r.n_valid)} bulan.{umr}")
         arah = "di bawah" if r.pct_vs_median < 0 else "di atas"
-        return f"Upah sejalan dengan perusahaan sejenis ({abs(r.pct_vs_median):.0%} {arah} median; {cohort})."
+        return f"Upah sejalan dengan perusahaan sejenis ({abs(r.pct_vs_median):.0%} {arah} nilai tengah; {cohort})."
     e["reason"] = [reason(r) for r in e.itertuples()]
     return e, d
 

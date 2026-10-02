@@ -8,10 +8,10 @@ export default function Decisions({ onSelect }: { onSelect: (id: string) => void
   useEffect(() => { api.decisions().then(setRows); }, []);
   return (
     <>
-      <div className="page-head"><h2>Riwayat Keputusan</h2><p>Jejak audit seluruh keputusan investigasi yang tersimpan.</p></div>
+      <div className="page-head"><h2>Riwayat Keputusan</h2><p>Catatan semua keputusan pemeriksaan yang pernah dibuat. Klik satu baris untuk membuka detail badan usaha.</p></div>
       <section className="panel">
         <table>
-          <thead><tr><th>Tanggal</th><th>Employer</th><th>Keputusan</th><th>Petugas</th><th>Catatan</th></tr></thead>
+          <thead><tr><th>Tanggal</th><th>Badan usaha</th><th>Keputusan</th><th>Petugas</th><th>Catatan</th></tr></thead>
           <tbody>
             {rows?.map((d) => (
               <tr key={d.id} onClick={() => onSelect(d.company_id)}>
@@ -22,7 +22,7 @@ export default function Decisions({ onSelect }: { onSelect: (id: string) => void
                 <td>{d.note}</td>
               </tr>
             ))}
-            {rows?.length === 0 && <tr><td colSpan={5} className="muted">Belum ada keputusan. Buka detail employer di Dashboard untuk mencatat keputusan.</td></tr>}
+            {rows?.length === 0 && <tr><td colSpan={5} className="muted">Belum ada keputusan. Buka detail badan usaha di Dashboard untuk mencatat keputusan.</td></tr>}
           </tbody>
         </table>
       </section>

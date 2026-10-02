@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { CompanyList, Filters } from "../types";
 import ScoreBar from "./ScoreBar";
+import { skor100 } from "../format";
 
 const PAGE = 25;
 const BAND_ORDER = ["Tinggi", "Sedang", "Rendah", "Belum bisa dinilai"];
@@ -33,7 +34,7 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
   return (
     <section className="panel">
       <div className="toolbar">
-        <h2>Worklist prioritas</h2>
+        <h2>Daftar prioritas pemeriksaan</h2>
         <input placeholder="Cari ID (mis. EMP-0492)" value={q} onChange={(e) => setQ(e.target.value)} />
         {select("Semua sektor", sektor, setSektor, filters?.sektor)}
         {select("Semua wilayah", wilayah, setWilayah, filters?.wilayah)}
@@ -49,9 +50,9 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
         <thead>
           <tr>
             <th title="Urutan prioritas pemeriksaan; 1 = paling perlu dicek">Peringkat</th><th>Badan usaha</th><th>Sektor · Wilayah</th>
-            <th title="Tinggi = paling perlu dicek. Belum bisa dinilai = data belum cukup">Tingkat risiko</th><th title="Skor gabungan 0–1; makin tinggi makin perlu dicek">Skor risiko</th>
-            <th title="Jumlah peserta turun tajam tanpa catatan resign (indikasi peserta tidak didaftarkan)">Jumlah peserta</th>
-            <th title="Upah yang dilaporkan jauh di bawah perusahaan sejenis (indikasi upah dilaporkan lebih rendah)">Upah dilaporkan</th>
+            <th title="Tinggi = periksa lebih dulu. Rendah = belum ada indikasi (bukan jaminan patuh). Belum bisa dinilai = data periode belum cukup, lengkapi lewat menu Input Data">Tingkat risiko</th><th title="Skor 0–100; makin tinggi makin perlu diperiksa">Skor risiko</th>
+            <th title="Jumlah peserta turun tajam tanpa catatan peserta keluar (kemungkinan peserta tidak didaftarkan)">Jumlah peserta</th>
+            <th title="Upah yang dilaporkan jauh di bawah badan usaha sejenis (sektor, wilayah, dan skala sama)">Upah dilaporkan</th>
             <th title="Iuran yang disetor kurang dari yang seharusnya, berulang beberapa bulan">Setoran iuran</th>
           </tr>
         </thead>
@@ -62,7 +63,7 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
               <td className="mono">{c.id}</td>
               <td>{c.sektor}<div className="muted">{c.wilayah} · {c.skala}</div></td>
               <td><span className={`pill bg-${TONE[c.band] ?? "muted"}`}>{c.band}</span></td>
-              <td className="mono">{c.composite_score?.toFixed(2) ?? "–"}</td>
+              <td className="mono">{skor100(c.composite_score)}</td>
               <td><ScoreBar value={c.scores.A} /></td>
               <td><ScoreBar value={c.scores.B} /></td>
               <td><ScoreBar value={c.scores.C} /></td>
@@ -71,12 +72,12 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
         </tbody>
       </table>
       <p className="muted small legend">
-        <b>Jumlah peserta · Upah dilaporkan · Setoran iuran</b> = tiga jenis indikasi yang diperiksa. Bar makin panjang dan merah = indikasi makin kuat
-        (tidak ada bar isi = tidak ada indikasi; "n/a" = data belum cukup). Skor adalah alat prioritas pemeriksaan, bukan vonis.
+        <b>Cara membaca:</b> tiga kolom terakhir adalah jenis pemeriksaan. Bar makin panjang dan merah = dugaan makin kuat; bar kosong = tidak ada dugaan;
+        "n/a" = data belum cukup. Hasil ini hanya urutan prioritas pemeriksaan, bukan vonis pelanggaran.
       </p>
       {data && (
         <div className="pager">
-          <span>{data.total} employer</span>
+          <span>{data.total} badan usaha</span>
           <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))}>← Sebelumnya</button>
           <button disabled={offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)}>Berikutnya →</button>
         </div>
