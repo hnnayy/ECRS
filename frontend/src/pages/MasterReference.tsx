@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import Modal from "../components/Modal";
 import type { Reference } from "../types";
+import Pager, { pageSlice, usePageSize } from "../components/Pager";
 
 type Kind = "wilayah" | "sektor";
 type Edit = { kind: Kind; old: string | null; nama: string; umr: string };
@@ -10,6 +11,10 @@ export default function MasterReference() {
   const [ref, setRef] = useState<Reference | null>(null);
   const [edit, setEdit] = useState<Edit | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [wSize, setWSize] = usePageSize("ref-wilayah", 10);
+  const [wOff, setWOff] = useState(0);
+  const [sSize, setSSize] = usePageSize("ref-sektor", 10);
+  const [sOff, setSOff] = useState(0);
   const load = useCallback(() => api.reference().then(setRef), []);
   useEffect(() => { load(); }, [load]);
 
@@ -35,25 +40,27 @@ export default function MasterReference() {
           <div className="toolbar"><h3>Wilayah</h3><button className="primary" style={{ marginLeft: "auto" }} onClick={() => open({ kind: "wilayah", old: null, nama: "", umr: "" })}>+ Tambah</button></div>
           <table>
             <thead><tr><th>Wilayah</th><th>Jumlah badan usaha</th><th>UMR (Rp)</th><th /></tr></thead>
-            <tbody>{ref?.wilayah.map((w) => (
+            <tbody>{ref && pageSlice(ref.wilayah, wSize, wOff).map((w) => (
               <tr key={w.nama}><td>{w.nama}</td><td>{w.employer}</td><td>{w.umr_rp === null ? "–" : w.umr_rp.toLocaleString("id-ID")}</td>
                 <td className="row-actions">
                   <button onClick={() => open({ kind: "wilayah", old: w.nama, nama: w.nama, umr: w.umr_rp === null ? "" : String(w.umr_rp) })}>Ubah</button>
                   <button className="danger" onClick={() => remove("wilayah", w.nama)}>Hapus</button></td></tr>
             ))}</tbody>
           </table>
+          {ref && <Pager total={ref.wilayah.length} size={wSize} offset={wOff} onSize={setWSize} onOffset={setWOff} unit="wilayah" />}
         </section>
         <section className="panel">
           <div className="toolbar"><h3>Sektor</h3><button className="primary" style={{ marginLeft: "auto" }} onClick={() => open({ kind: "sektor", old: null, nama: "", umr: "" })}>+ Tambah</button></div>
           <table>
             <thead><tr><th>Sektor</th><th>Jumlah badan usaha</th><th /></tr></thead>
-            <tbody>{ref?.sektor.map((s) => (
+            <tbody>{ref && pageSlice(ref.sektor, sSize, sOff).map((s) => (
               <tr key={s.nama}><td>{s.nama}</td><td>{s.employer}</td>
                 <td className="row-actions">
                   <button onClick={() => open({ kind: "sektor", old: s.nama, nama: s.nama, umr: "" })}>Ubah</button>
                   <button className="danger" onClick={() => remove("sektor", s.nama)}>Hapus</button></td></tr>
             ))}</tbody>
           </table>
+          {ref && <Pager total={ref.sektor.length} size={sSize} offset={sOff} onSize={setSSize} onOffset={setSOff} unit="sektor" />}
         </section>
       </div>
 

@@ -3,8 +3,8 @@ import { api } from "../api";
 import type { CompanyList, Filters } from "../types";
 import ScoreBar from "./ScoreBar";
 import { skor100 } from "../format";
+import Pager, { usePageSize } from "./Pager";
 
-const PAGE = 25;
 const BAND_ORDER = ["Tinggi", "Sedang", "Rendah", "Belum bisa dinilai"];
 const TONE: Record<string, string> = { Tinggi: "critical", Sedang: "serious", Rendah: "good" };
 
@@ -16,13 +16,14 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
   const [flagged, setFlagged] = useState("");
   const [q, setQ] = useState("");
   const [offset, setOffset] = useState(0);
+  const [size, setSize] = usePageSize("worklist", 25);
   const [data, setData] = useState<CompanyList | null>(null);
 
   useEffect(() => { api.filters().then(setFilters); }, []);
   useEffect(() => { setOffset(0); }, [sektor, wilayah, band, flagged, q]);
   useEffect(() => {
-    api.companies({ sektor, wilayah, band, flagged, q, limit: PAGE, offset }).then(setData);
-  }, [sektor, wilayah, band, flagged, q, offset]);
+    api.companies({ sektor, wilayah, band, flagged, q, limit: size === 0 ? 5000 : size, offset }).then(setData);
+  }, [sektor, wilayah, band, flagged, q, offset, size]);
 
   const select = (label: string, value: string, set: (v: string) => void, options: string[] = []) => (
     <select value={value} onChange={(e) => set(e.target.value)} aria-label={label}>
@@ -75,13 +76,7 @@ export default function Worklist({ onSelect }: { onSelect: (id: string) => void 
         <b>Cara membaca:</b> tiga kolom terakhir adalah jenis pemeriksaan. Bar makin panjang dan merah = dugaan makin kuat; bar kosong = tidak ada dugaan;
         "n/a" = data belum cukup. Hasil ini hanya urutan prioritas pemeriksaan, bukan vonis pelanggaran.
       </p>
-      {data && (
-        <div className="pager">
-          <span>{data.total} badan usaha</span>
-          <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - PAGE))}>← Sebelumnya</button>
-          <button disabled={offset + PAGE >= data.total} onClick={() => setOffset(offset + PAGE)}>Berikutnya →</button>
-        </div>
-      )}
+      {data && <Pager total={data.total} size={size} offset={offset} onSize={setSize} onOffset={setOffset} unit="badan usaha" />}
     </section>
   );
 }

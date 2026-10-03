@@ -2,6 +2,7 @@ import { useState } from "react";
 import { api } from "../api";
 import type { CompanyDetail, PeriodInput, PeriodRow } from "../types";
 import { bulan, skor100 } from "../format";
+import Pager, { pageSlice, usePageSize } from "../components/Pager";
 
 const EMPTY = { periode: "", jumlah_peserta_aktif: "", jumlah_keluar: "0", rata2_DPI: "", expected_contribution: "", actual_remittance: "" };
 type Form = typeof EMPTY;
@@ -14,12 +15,14 @@ export default function InputData({ onSelect }: { onSelect: (id: string) => void
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [result, setResult] = useState<CompanyDetail | null>(null);
+  const [size, setSize] = usePageSize("input-riwayat", 10);
+  const [offset, setOffset] = useState(0);
 
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, [k]: e.target.value });
   const valid = id.trim() !== "" && form.periode !== "" && Object.values(form).every((v) => v !== "");
 
   const loadEmployer = async () => {
-    setMsg(null); setResult(null);
+    setMsg(null); setResult(null); setOffset(0);
     try { setRows(await api.timeseries(id.trim())); } catch (e) { setMsg({ kind: "err", text: (e as Error).message }); }
   };
   const payload = (): PeriodInput => ({
@@ -93,12 +96,13 @@ export default function InputData({ onSelect }: { onSelect: (id: string) => void
           {rows.length === 0 ? <p className="muted">Belum ada data periode untuk badan usaha ini.</p> : (
             <table>
               <thead><tr><th>Periode</th><th>Peserta</th><th>Keluar</th><th>Upah rata-rata (Rp)</th><th>Iuran seharusnya (Rp)</th><th>Iuran disetor (Rp)</th></tr></thead>
-              <tbody>{rows.map((r) => (
+              <tbody>{pageSlice(rows, size, offset).map((r) => (
                 <tr key={r.periode}><td>{bulan(r.periode)}</td><td>{r.jumlah_peserta_aktif}</td><td>{r.jumlah_keluar}</td>
                   <td>{rp(r.rata2_DPI)}</td><td>{rp(r.expected_contribution)}</td><td>{rp(r.actual_remittance)}</td></tr>
               ))}</tbody>
             </table>
           )}
+          {rows.length > 0 && <Pager total={rows.length} size={size} offset={offset} onSize={setSize} onOffset={setOffset} unit="periode" />}
         </section>
       )}
     </>

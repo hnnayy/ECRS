@@ -19,9 +19,9 @@ const get = <T,>(path: string) => req<T>("GET", path);
 const post = <T,>(path: string, body: unknown) => req<T>("POST", path, body);
 
 export const api = {
-  decisions: (companyId?: string) => get<Decision[]>(`/api/decisions${companyId ? `?company_id=${encodeURIComponent(companyId)}` : ""}`),
+  decisions: (companyId?: string) => get<Decision[]>(`/api/decisions?limit=1000${companyId ? `&company_id=${encodeURIComponent(companyId)}` : ""}`),
   addDecision: (d: { company_id: string; decision: string; note: string }) => post<Decision>("/api/decisions", d),
-  employers: (q: string, offset: number) => get<{ total: number; items: Employer[] }>(`/api/employers?q=${encodeURIComponent(q)}&limit=25&offset=${offset}`),
+  employers: (q: string, offset: number, limit: number) => get<{ total: number; items: Employer[] }>(`/api/employers?q=${encodeURIComponent(q)}&limit=${limit}&offset=${offset}`),
   createEmployer: (e: EmployerInput) => post<Employer>("/api/employers", e),
   updateEmployer: (id: string, e: EmployerInput) => req<Employer>("PUT", `/api/employers/${id}`, e),
   deleteEmployer: (id: string) => req<void>("DELETE", `/api/employers/${id}`),
@@ -29,7 +29,7 @@ export const api = {
   updateRef: (kind: "wilayah" | "sektor", old: string, b: { nama: string; umr_rp?: number | null }) =>
     req<unknown>("PUT", `/api/${kind}/${encodeURIComponent(old)}`, b),
   deleteRef: (kind: "wilayah" | "sektor", nama: string) => req<void>("DELETE", `/api/${kind}/${encodeURIComponent(nama)}`),
-  timeseries: (id: string) => get<PeriodRow[]>(`/api/timeseries/${encodeURIComponent(id)}`),
+  timeseries: (id: string) => get<PeriodRow[]>(`/api/timeseries/${encodeURIComponent(id)}?limit=60`),
   savePeriod: (d: PeriodInput) => post<PeriodInput>("/api/timeseries", d),
   status: () => get<SystemStatus>("/api/system/status"),
   reference: () => get<Reference>("/api/reference"),

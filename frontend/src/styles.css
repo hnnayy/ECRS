@@ -120,3 +120,5 @@ main { transition:padding-right .2s ease; }
 
 .help { display:block; font-weight:400; font-size:11px; color:var(--muted); margin-top:3px; line-height:1.3; }
 .alert.info { margin:8px 0; }
+.page-size { display:flex; align-items:center; gap:6px; font-size:13px; color:var(--muted); }
+.page-size select { padding:4px 6px; }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { api } from "../api";
 import Modal from "../components/Modal";
 import { tanggal } from "../format";
+import Pager, { usePageSize } from "../components/Pager";
 import type { Employer, EmployerInput, Reference } from "../types";
 
 const EMPTY: EmployerInput = { nama: "", sektor: "", wilayah: "", skala: "Kecil", status: "Aktif", tanggal_registrasi: new Date().toISOString().slice(0, 10) };
@@ -9,12 +10,13 @@ const EMPTY: EmployerInput = { nama: "", sektor: "", wilayah: "", skala: "Kecil"
 export default function MasterEmployers({ onSelect }: { onSelect: (id: string) => void }) {
   const [q, setQ] = useState("");
   const [offset, setOffset] = useState(0);
+  const [size, setSize] = usePageSize("master-badan-usaha", 25);
   const [data, setData] = useState<{ total: number; items: Employer[] } | null>(null);
   const [ref, setRef] = useState<Reference | null>(null);
   const [editing, setEditing] = useState<{ id: string | null; form: EmployerInput } | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
-  const load = useCallback(() => api.employers(q, offset).then(setData), [q, offset]);
+  const load = useCallback(() => api.employers(q, offset, size === 0 ? 5000 : size).then(setData), [q, offset, size]);
   useEffect(() => { setOffset(0); }, [q]);
   useEffect(() => { load(); }, [load]);
   useEffect(() => { api.reference().then(setRef); }, []);
@@ -64,12 +66,7 @@ export default function MasterEmployers({ onSelect }: { onSelect: (id: string) =
             ))}
           </tbody>
         </table>
-        {data && (
-          <div className="pager">
-            <button disabled={offset === 0} onClick={() => setOffset(Math.max(0, offset - 25))}>← Sebelumnya</button>
-            <button disabled={offset + 25 >= data.total} onClick={() => setOffset(offset + 25)}>Berikutnya →</button>
-          </div>
-        )}
+        {data && <Pager total={data.total} size={size} offset={offset} onSize={setSize} onOffset={setOffset} unit="badan usaha" />}
       </section>
 
       {editing && ref && (

@@ -106,7 +106,7 @@ def companies(sektor: str | None = None, wilayah: str | None = None, band: str |
               q: str | None = Query(None, description="cari id employer"),
               flagged: str | None = Query(None, pattern="^[ABC]$", description="hanya yang di-flag modul ini"),
               sort: str = Query("rule", pattern="^(rule|learned)$"),
-              limit: int = Query(50, ge=1, le=500), offset: int = Query(0, ge=0)):
+              limit: int = Query(50, ge=1, le=5000), offset: int = Query(0, ge=0)):
     rows = [c for c in COMPANIES
             if (not sektor or c["sektor"] == sektor) and (not wilayah or c["wilayah"] == wilayah)
             and (not band or c["band"] == band) and (not flagged or flagged in c["modules_flagged"]) and (not q or q.lower() in c["id"].lower())]
@@ -342,7 +342,7 @@ def _check_refs(con: sqlite3.Connection, e: EmployerIn) -> None:
 
 
 @app.get("/api/employers")
-def employers(q: str | None = None, limit: int = Query(25, ge=1, le=500), offset: int = Query(0, ge=0)):
+def employers(q: str | None = None, limit: int = Query(25, ge=1, le=5000), offset: int = Query(0, ge=0)):
     like = f"%{q or ''}%"
     with db() as con:
         where = "WHERE employer_id LIKE ? OR nama LIKE ?"
